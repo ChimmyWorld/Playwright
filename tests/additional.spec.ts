@@ -2,21 +2,24 @@ import { test, expect } from '@playwright/test';
 
 test.describe('The Internet - 추가 테스트', () => {
 
-  test('체크박스 테스트', async ({ page }) => {
-    await page.goto('https://the-internet.herokuapp.com/checkboxes');
-
-    // 페이지에는 두 개의 체크박스가 있음.
-    // 첫 번째 체크박스는 기본 미선택, 두 번째는 기본 선택 상태.
-    const checkboxes = page.locator('form#checkboxes input[type="checkbox"]');
-
-    // 첫 번째 체크박스 선택, 두 번째 체크박스 해제
-    await checkboxes.nth(0).check();
-    await checkboxes.nth(1).uncheck();
-
-    // 검증
-    await expect(checkboxes.nth(0)).toBeChecked();
-    await expect(checkboxes.nth(1)).not.toBeChecked();
-  });
+    test('체크박스 테스트', async ({ page }) => {
+        await page.goto('https://the-internet.herokuapp.com/checkboxes');
+        const checkboxes = page.locator('form#checkboxes input[type="checkbox"]');
+      
+        // 첫 번째 체크박스: 만약 체크되어 있지 않다면 클릭하여 체크
+        if (!(await checkboxes.nth(0).isChecked())) {
+          await checkboxes.nth(0).click({ force: true });
+        }
+        
+        // 두 번째 체크박스: 만약 체크되어 있다면 클릭하여 언체크
+        if (await checkboxes.nth(1).isChecked()) {
+          await checkboxes.nth(1).click({ force: true });
+        }
+      
+        // 검증: 첫 번째는 체크되어 있어야 하고, 두 번째는 체크되어 있지 않아야 함
+        await expect(checkboxes.nth(0)).toBeChecked();
+        await expect(checkboxes.nth(1)).not.toBeChecked();
+      });
 
   test('드롭다운 테스트', async ({ page }) => {
     await page.goto('https://the-internet.herokuapp.com/dropdown');
